@@ -5,22 +5,63 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/FooterSection";
-import { saveContact } from "@/lib/storage";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
+import axios from "axios"; // 1. Import axios
 
 const Contact = () => {
-  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
+  const [isLoading, setIsLoading] = useState(false); // 2. Add loading state
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.message) {
-      toast({ title: "Please fill all required fields", variant: "destructive" });
+
+    // 3. Validation matching your Schema (name, email, subject, desc are required)
+    if (!form.name || !form.email || !form.subject || !form.message) {
+      toast({
+        title: "Missing Fields",
+        description: "Please fill all required fields, including a subject.",
+        variant: "destructive"
+      });
       return;
     }
-    saveContact(form);
-    toast({ title: "Message sent!", description: "We'll get back to you within 24 hours." });
-    setForm({ name: "", email: "", subject: "", message: "" });
+
+    setIsLoading(true);
+
+    try {
+      // 4. Map 'message' from form to 'desc' for the backend schema
+      const postData = {
+        name: form.name,
+        email: form.email,
+        subject: form.subject,
+        desc: form.message
+      };
+
+      const response = await axios.post("https://pricebackend-n0qq.onrender.com/api/contact", postData);
+
+      if (response.status === 200) {
+        toast({
+          title: "Message sent! 🚀",
+          description: "We'll get back to you within 24 hours."
+        });
+        // 5. Clear form on success
+        setForm({ name: "", email: "", subject: "", message: "" });
+      }
+    } catch (err: any) {
+      console.error("Contact Error:", err);
+      toast({
+        title: "Error",
+        description: err.response?.data || "Failed to send message. Please try again later.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -42,9 +83,9 @@ const Contact = () => {
             <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
               <div className="space-y-8">
                 {[
-                  { icon: Mail, label: "Email", value: "hello@vildash.network" },
-                  { icon: Phone, label: "Phone", value: "+1 (555) 000-1234" },
-                  { icon: MapPin, label: "Location", value: "San Francisco, CA" },
+                  { icon: Mail, label: "Email", value: "info@vizit.homes" },
+                  { icon: Phone, label: "Phone", value: "+237 654598457" },
+                  { icon: MapPin, label: "Location", value: "Douala Cameroon At Total Ndobo" },
                 ].map((item) => (
                   <div key={item.label} className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-neon-blue/10 flex items-center justify-center shrink-0">
@@ -80,7 +121,7 @@ const Contact = () => {
                 className="bg-muted/50 border-border/50"
               />
               <Input
-                placeholder="Subject"
+                placeholder="Subject *"
                 value={form.subject}
                 onChange={(e) => setForm({ ...form, subject: e.target.value })}
                 className="bg-muted/50 border-border/50"
@@ -92,8 +133,8 @@ const Contact = () => {
                 onChange={(e) => setForm({ ...form, message: e.target.value })}
                 className="bg-muted/50 border-border/50"
               />
-              <Button variant="hero" type="submit" className="w-full">
-                Send Message
+              <Button variant="hero" type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Sending..." : "Send Message"}
               </Button>
             </motion.form>
           </div>

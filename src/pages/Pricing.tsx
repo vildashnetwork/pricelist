@@ -8,7 +8,8 @@ import FooterSection from "@/components/FooterSection";
 const plans = [
   {
     name: "Starter",
-    price: "$2,999",
+    price: "150,000",
+    currency: "FCFA",
     period: "per project",
     description: "Perfect for small businesses & MVPs",
     features: [
@@ -23,7 +24,8 @@ const plans = [
   },
   {
     name: "Professional",
-    price: "$7,999",
+    price: "450,000",
+    currency: "FCFA",
     period: "per project",
     description: "Ideal for growing businesses",
     features: [
@@ -41,6 +43,7 @@ const plans = [
   {
     name: "Enterprise",
     price: "Custom",
+    currency: "",
     period: "tailored pricing",
     description: "For large-scale digital products",
     features: [
@@ -67,10 +70,10 @@ const Pricing = () => {
         <div className="container px-6">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
             <h1 className="text-4xl md:text-6xl font-bold font-display mb-4">
-              <span className="text-gradient">Pricing</span> Plans
+              Pricing <span className="text-gradient">Plans</span>
             </h1>
             <p className="text-muted-foreground max-w-lg mx-auto">
-              Transparent pricing with no hidden fees. Choose the plan that fits your needs.
+              Transparent pricing with no hidden fees. Choose the plan that fits your needs perfectly.
             </p>
           </motion.div>
 
@@ -81,15 +84,14 @@ const Pricing = () => {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.15 }}
-                className={`rounded-2xl p-8 relative ${
-                  plan.highlighted
-                    ? "glass-panel border-neon-blue/40 neon-glow"
-                    : "glass-panel"
-                }`}
+                className={`rounded-2xl p-8 relative flex flex-col ${plan.highlighted
+                  ? "glass-panel border-neon-blue/40 neon-glow"
+                  : "glass-panel"
+                  }`}
               >
                 {plan.highlighted && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-neon-blue text-primary-foreground text-xs font-bold px-4 py-1 rounded-full">
-                    MOST POPULAR
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-neon-blue text-primary-foreground text-[10px] font-bold px-4 py-1 rounded-full uppercase tracking-widest">
+                    Most Popular
                   </div>
                 )}
 
@@ -97,22 +99,31 @@ const Pricing = () => {
                 <p className="text-muted-foreground text-sm mt-1 mb-6">{plan.description}</p>
 
                 <div className="mb-6">
-                  <span className="text-4xl font-bold font-display text-gradient">{plan.price}</span>
-                  <span className="text-muted-foreground text-sm ml-2">/ {plan.period}</span>
+                  <span className="text-3xl font-bold font-display text-gradient">
+                    {plan.price}
+                  </span>
+                  {plan.currency && (
+                    <span className="text-lg font-bold text-foreground ml-1">
+                      {plan.currency}
+                    </span>
+                  )}
+                  <div className="text-muted-foreground text-[10px] uppercase tracking-wider mt-1">
+                    {plan.period}
+                  </div>
                 </div>
 
-                <ul className="space-y-3 mb-8">
+                <ul className="space-y-3 mb-8 flex-grow">
                   {plan.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
-                      <Check className="w-4 h-4 text-neon-cyan mt-0.5 shrink-0" />
+                      <Check className="w-4 h-4 text-neon-blue mt-0.5 shrink-0" />
                       {f}
                     </li>
                   ))}
                 </ul>
 
-                <Link to="/get-quote">
+                <Link to={`/get-quote?service=${encodeURIComponent(plan.name)}&budget=${encodeURIComponent(plan.price + ' ' + plan.currency)}`}>
                   <Button variant={plan.highlighted ? "hero" : "heroOutline"} className="w-full">
-                    Get a Quote
+                    Get Started
                   </Button>
                 </Link>
               </motion.div>
